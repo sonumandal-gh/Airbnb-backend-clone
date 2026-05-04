@@ -9,7 +9,7 @@ const bookingSchema = new mongoose.Schema({
 
     home: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Home',
+        ref: 'Homes',
         required: true
     },
 

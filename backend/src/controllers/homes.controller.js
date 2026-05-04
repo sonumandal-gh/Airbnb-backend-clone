@@ -1,21 +1,21 @@
 const Home = require("../models/homes.model");
 
 // Add Homes
-exports.createHome = async (req, res) => {
-  try{
-    const {title, description, price, location, country} = req.body;
+const createHome = async (req, res) => {
+  try {
+    const { title, description, price, location, country } = req.body;
 
     if (!title || !description || !price || !location || !country) {
       return res.status(400).json({
         success: false,
-        message: "All fields are require"
+        message: "All fields are required"
       });
     }
 
-    // Dublicate/validation logic
-    const existing = await Home.findOne({title, location});
+    // Duplicate check
+    const existing = await Home.findOne({ title, location });
 
-    if(existing){
+    if (existing) {
       return res.status(403).json({
         message: "Home already exists"
       });
@@ -27,9 +27,10 @@ exports.createHome = async (req, res) => {
       price,
       location,
       country,
-      Image: req.body.images || [],
+      images: req.body.images || [],
       host: req.user._id
     });
+
     res.status(201).json({
       success: true,
       message: "Home created successfully",
@@ -45,88 +46,96 @@ exports.createHome = async (req, res) => {
 };
 
 // Get all homes
-exports.getHome = async (req, res) => {
-  try{
+const getHome = async (req, res) => {
+  try {
     const homes = await Home.find();
 
     res.status(200).json({
-      count: Home.length,
-      Home
+      success: true,
+      count: homes.length,
+      homes
     });
   }
-  catch(error){
+  catch (error) {
     res.status(500).json({
       message: "Server error",
       error: error.message
     });
   }
-}
+};
 
 // get single home
-exports.getSingleHome = async (req, res) => {
-  try{
-    const home = await Home.findById(req.params.id).populate("host");
+const getSingleHome = async (req, res) => {
+  try {
+    const home = await Home.findById(req.params.id).populate("host", "fullName email phoneNumber");
 
-    if(!home){
+    if (!home) {
       return res.status(404).json({
         message: "Home Not found"
       });
     }
-  }
-  catch(error){
-    return rea.status(500).json({
-      message: "Home Not Found"
+
+    res.status(200).json({
+      success: true,
+      data: home
     });
   }
-}
+  catch (error) {
+    return res.status(500).json({
+      message: "Home Not Found",
+      error: error.message
+    });
+  }
+};
 
-// Ubdate Homes
-exports.updateHome = async(req, res) => {
-  try{
-    const {id} = req.params;
+// Update Homes
+const updateHome = async (req, res) => {
+  try {
+    const { id } = req.params;
 
     const updatedHome = await Home.findByIdAndUpdate(
       id,
       req.body,
-      {new: true}
+      { new: true }
     );
 
-    // if not found
-    if(!updatedHome){
-      req.status(404).json({
+    if (!updatedHome) {
+      return res.status(404).json({
         message: "home not found"
       });
     }
 
     res.status(200).json({
-      message: "Home updated sussfully",
-      Home: updatedHome 
+      success: true,
+      message: "Home updated successfully",
+      data: updatedHome
     });
 
   }
-  catch(error){
+  catch (error) {
     res.status(500).json({
       message: "Server error",
       error: error.message
     });
   }
-}
+};
 
 // Delete home
-exports.deletHome = async (req, res) => {
-  try{
-    const {id} = req.params;
+const deleteHome = async (req, res) => {
+  try {
+    const { id } = req.params;
 
     const home = await Home.findByIdAndDelete(id);
 
-    if(!home){
-      res.status(400).json({
-        message: "Home is not faund"
+    if (!home) {
+      return res.status(404).json({
+        message: "Home not found"
       });
     }
 
     res.status(200).json({
-      message: "Product deleted"
+      success: true,
+      message: "Home deleted successfully"
     });
 
   } catch (error) {
@@ -135,4 +144,12 @@ exports.deletHome = async (req, res) => {
       error: error.message
     });
   }
+};
+
+module.exports = {
+  createHome,
+  getHome,
+  getSingleHome,
+  updateHome,
+  deleteHome
 };

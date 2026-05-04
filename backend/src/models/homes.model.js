@@ -3,32 +3,34 @@ const mongoose = require("mongoose");
 const homesSchema = new mongoose.Schema({
   title: {
     type: String,
-    require: true
+    required: true
   },
 
   description:{
     type: String,
-    require: true
+    required: true
   },
 
   price:{
     type: Number,
-    require: true
+    required: true
   },
 
   location:{
     type: String,
-    require: true
+    required: true
   },
 
   country: {
     type: String,
-    require: true
+    required: true
   },
 
-  Image: {
-    type: String,
-  },
+  images: [
+    {
+      type: String,
+    },
+  ],
 
   host: {
     type: mongoose.Schema.Types.ObjectId,
