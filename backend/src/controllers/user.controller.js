@@ -17,6 +17,58 @@ const generateAccessAndRefreshTokens = async (userId) => {
   }
 };
 
+// Admin: Get all users
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -refreshToken");
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+  }
+  catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+// Admin: Update User Role
+const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!["guest", "host", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true }
+    ).select("-password -refreshToken");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: user,
+      message: `User role updated to ${role}`
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
 // REGISTER
 const registerUser = async (req, res) => {
   try {
@@ -166,5 +218,7 @@ module.exports = {
   registerUser,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  getAllUsers,
+  updateUserRole
 };

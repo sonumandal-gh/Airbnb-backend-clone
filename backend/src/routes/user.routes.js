@@ -5,24 +5,31 @@ const {
   registerUser,
   loginUser,
   logoutUser,
-  refreshAccessToken
+  refreshAccessToken,
+  getAllUsers,
+  updateUserRole
 } = require("../controllers/user.controller");
 
-const auth = require("../middleware/auth.middleware");
+const authMiddleware = require("../middleware/auth.middleware");
+const adminMiddleware = require("../middleware/admin.middleware");
 
 // public routes
 router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/refresh-token", refreshAccessToken);
 
+// Admin only
+router.get("/all", authMiddleware, adminMiddleware, getAllUsers);
+router.patch("/:id/role", authMiddleware, adminMiddleware, updateUserRole);
+
 // protected routes
-router.get("/profile", auth, (req, res) => {
+router.get("/profile", authMiddleware, (req, res) => {
   res.json({
     message: "Protected route accessed",
     user: req.user
   });
 });
 
-router.post("/logout", auth, logoutUser);
+router.post("/logout", authMiddleware, logoutUser);
 
 module.exports = router;
